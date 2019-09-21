@@ -17,7 +17,7 @@ const port = process.env.PORT;
 // database
 const Pool = require('pg').Pool
 const pool = new Pool({
-	host: process.env.DATABASE_HOST,
+	//host: process.env.DATABASE_HOST,
   database: process.env.DATABASE_URL,
   port: 5432,
 })
