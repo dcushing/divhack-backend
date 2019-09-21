@@ -65,6 +65,11 @@ app.get('/', function(req,res,done) {
 	res.json({"message": "hello!"}); // this will be changed later
 })
 
+// this will be the login page
+app.get('/about', function(req,res,done) {
+	res.send({"message": "hello!"}); // this will be changed later
+})
+
 app.post('/login', function(req,res,done) {
 	var name = req.body.name;
 	var email = req.body.email;
