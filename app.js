@@ -17,7 +17,6 @@ const port = process.env.PORT;
 // database
 const Pool = require('pg').Pool
 const pool = new Pool({
-  //host: 'localhost',
   database: process.env.DATABASE_URL,
   port: 5432,
 })
@@ -67,43 +66,43 @@ app.get('/about', function(req,res,done) {
 })
 
 app.post('/login', function(req,res,done) {
-	var name = req.body.name;
+	var name = req.body.name || "";
 	var email = req.body.email;
+	var password = req.body.password || "";
 	pool.query('SELECT * FROM users WHERE id = $1', [id], (error, results) => {
     if (error) {
       throw error
     }
     if (results.length == 0) {
-    	res.status(404)
-    } else {
-    	var hashedPass = results[0].password;
-    	bcrypt.compare(myPlaintextPassword, hash, function(err, res) {
-		    // res == true
-		    if (err) return done(err);
-		    res.redirect('/user/' + results[0].id);
-		});
+    	pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [name, email, passwordHash], function(error, results) {
+	    if (error) {
+	      throw error
+	    }
+    	res.status(201).send(`User added with ID: ${result.insertId}`)
+    })
     }
   })
 })
 
 // user stuff
 app.route('/user').post(function(req,res,done) {
+	// TODO
 	// create the user: need the email, username, and password; need to hash password
-	var name = req.body.name;
-	var email = req.body.email;
-	var passwordHash;
-	bcrypt.hash(req.body.password, saltRounds,function(err,hash) {
-		if (err) return done(err);
-		passwordHash = hash;
-	});
+	// var name = req.body.name;
+	// var email = req.body.email;
+	// var passwordHash;
+	// // bcrypt.hash(req.body.password, saltRounds,function(err,hash) {
+	// // 	if (err) return done(err);
+	// // 	passwordHash = hash;
+	// // });
 
-	// save the user
-	pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [name, email, passwordHash], (error, results) => {
-    if (error) {
-      throw error
-    }
-    response.status(201).send(`User added with ID: ${result.insertId}`)
-  })
+	// // save the user
+	// pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [name, email, passwordHash], (error, results) => {
+ //    if (error) {
+ //      throw error
+ //    }
+ //    response.status(201).send(`User added with ID: ${result.insertId}`)
+ //  })
 
 }).get(function(req,res,done) {
 	var id = req.query.id;
@@ -113,7 +112,6 @@ app.route('/user').post(function(req,res,done) {
     }
     res.status(200).json(results.rows)
   })
-	//res.json({"name": res.body.name, "email": res.body.email, "user_log": res.body.user_log})
 });
 
 
