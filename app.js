@@ -1,6 +1,7 @@
 const express = require('express')
 const helmet = require('helmet')
 const bodyParser  = require('body-parser');
+require('dotenv').config()
 //models
 const users = require('./models/users');
 const user_logs = require('./models/user_logs');
@@ -11,23 +12,18 @@ const saltRounds = 12;
 
 
 const app = express()
-const port = 3000
-require('dotenv').config()
+const port = process.env.PORT;
 
 // database
 const Pool = require('pg').Pool
 const pool = new Pool({
-  //user: 'me',
-  host: 'localhost',
-  database: 'hackathon',
-  //password: 'password',
+  //host: 'localhost',
+  database: process.env.DATABASE,
   port: 5432,
 })
 
 
 app.use(helmet())
-
-
 app.use(bodyParser.json())
 app.use(
   bodyParser.urlencoded({
