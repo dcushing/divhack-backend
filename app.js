@@ -17,10 +17,10 @@ const port = process.env.PORT;
 // database
 const Pool = require('pg').Pool
 const pool = new Pool({
+	host: process.env.DATABASE_HOST,
   database: process.env.DATABASE_URL,
   port: 5432,
 })
-
 
 app.use(helmet())
 app.use(bodyParser.json())
@@ -72,18 +72,20 @@ app.post('/login', function(req,res,done) {
 	pool.query('SELECT * FROM users WHERE email = $1', [email], (error, results) => {
     if (error) {
       console.log(error)
-      return(error);
+      throw error;
     }
-    if (results.length == 0) {
+    console.log(results.rows.length);
+    if (results.rows.length == 0) {
     	pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [name, email, password], function(error, results) {
 	    if (error) {
 	      console.log(error);
-	      return(error);
+	      throw error;
 	    }
-    	res.status(201).send(`User added with ID: ${result.insertId}`)
+    	res.send(results.rows)
     })
-    }
-    res.status(201).send(`User found`);
+    } else {
+    	res.send(results.rows);
+    }  
   })
 })
 
