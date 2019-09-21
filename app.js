@@ -16,9 +16,10 @@ const app = express()
 const port = process.env.PORT;
 
 // database
-const Pool = require('pg').Pool
-const pool = new Pool({
-	//host: process.env.DATABASE_HOST,
+const pg = require('pg')
+pg.defaults.connectionString = process.env.DATABASE_URL + "?ssl=true";
+const pool = new pg.Pool({
+	host: process.env.DATABASE_HOST,
   database: process.env.DATABASE_URL,
   port: 5432,
 })
