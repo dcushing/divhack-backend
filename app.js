@@ -69,19 +69,21 @@ app.post('/login', function(req,res,done) {
 	var name = req.body.name || "";
 	var email = req.body.email;
 	var password = req.body.password || "";
-	pool.query('SELECT * FROM users WHERE id = $1', [id], (error, results) => {
+	pool.query('SELECT * FROM users WHERE email = $1', [email], (error, results) => {
     if (error) {
       throw error
     }
     if (results.length == 0) {
-    	pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [name, email, passwordHash], function(error, results) {
+    	pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [name, email, password], function(error, results) {
 	    if (error) {
 	      throw error
 	    }
     	res.status(201).send(`User added with ID: ${result.insertId}`)
     })
     }
+    res.status(201).send(`User found`);
   })
+
 })
 
 // user stuff
