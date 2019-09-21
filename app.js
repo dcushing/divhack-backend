@@ -1,6 +1,7 @@
 const express = require('express')
 const helmet = require('helmet')
 const bodyParser  = require('body-parser');
+const cors = require('cors');
 require('dotenv').config()
 //models
 const users = require('./models/users');
@@ -23,6 +24,7 @@ const pool = new Pool({
 })
 
 app.use(helmet())
+app.options('*', cors())
 app.use(bodyParser.json())
 app.use(
   bodyParser.urlencoded({
