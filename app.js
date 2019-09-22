@@ -85,7 +85,7 @@ app.post('/login', function(req,res,done) {
 	      throw error;
 	    }
 	    res.sendStatus(200);
-    	res.send(results.rows)
+    	//res.send(results.rows)
     })
     } else {
     	res.send(results.rows);
