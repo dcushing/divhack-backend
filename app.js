@@ -187,13 +187,15 @@ var address2 = Street + "%20" + city + "%20" + state;
      console.log(url2);
 
     var urls = [url, url2];
+    //var url = 'https://uplift-paywall.herokuapp.com/api/v3/status';
 
     request(url, (error, response, body) => {
 		var data = JSON.parse(body);
 		if(!error && response.statusCode == 200){
             var distancekm = data.resourceSets[0].resources[0].travelDistance;
             var preJson = {
-                "car_distance": distancekm
+                "car_distance": 2122,
+                "bus_distance": 2122
             }
             
             var jsonStr = JSON.stringify(preJson)
