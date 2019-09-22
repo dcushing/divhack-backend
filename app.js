@@ -84,6 +84,7 @@ app.post('/login', function(req,res,done) {
 	      console.log(error);
 	      throw error;
 	    }
+	    res.sendStatus(200);
     	res.send(results.rows)
     })
     } else {
@@ -148,23 +149,42 @@ app.post('/input', (req,res,done) => {
     var currentStreet = req.body.currentStreet;
     console.log(currentStreet);
     currentStreet.replace(/ /g,"%20");
+    console.log(currentStreet);
+    currentStreet = "604%20Brazos%20St"
     var currentCity = req.body.currentCity;
     var currentState = req.body.currentState;
     var address1 = currentStreet + "%20" + currentCity + "%20" + currentState;
+    console.log(address1);
     var street = req.body.street; 
     street.replace(/ /g,"%20");
+    street = "1%20Microsoft%20Way";
     var city = req.body.city;
     var state = req.body.state;
     var address2 = street + "%20" + city + "%20" + state;
+
+/*
+var CurrentStreet = "604 Brazos St";
+var CurrentCity = "Austin";
+var CurrentState = "TX";
+CurrentStreet.replace(/ /g,"%20");
+var address1 = CurrentStreet + "%20" + CurrentCity + "%20" + CurrentState;
+var Street = "1 Microsoft Way" 
+Street.replace(/ /g,"%20");
+var city = "Redmond";
+var state = "WA";
+var address2 = Street + "%20" + city + "%20" + state;
+*/
 
 
     var url = "http://dev.virtualearth.net/REST/V1/Routes/Driving?waypoint.1=" 
     + address1 + "%2Cwa&waypoint.2=" + address2 + "%2Cwa&avoid=minimizeTolls&key="
      + process.env.BING_API_KEY;
+     console.log(url);
 
     var url2 = "http://dev.virtualearth.net/REST/V1/Routes/Transit?waypoint.1=" 
     + address1 + "%2Cwa&waypoint.2=" + address2 + "%2Cwa&avoid=minimizeTolls&key="
      + process.env.BING_API_KEY;
+     console.log(url2);
 
     var urls = [url, url2];
 
@@ -190,6 +210,7 @@ app.post('/input', (req,res,done) => {
 		}
     });
 });
+
 
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
