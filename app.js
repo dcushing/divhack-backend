@@ -105,6 +105,81 @@ app.route('/user').get(function(req,res,done) {
   })
 });
 
+// get trips for users or post a trip for a user
+app.route('/user/:id').get(function(req,res,done) {
+	var id = req.params.id;
+	pool.query('SELECT * FROM users WHERE id = $1', [id], (error, results) => {
+    if (error) {
+      throw error
+    }
+    if (results.rows.length == 0) {
+    	res.status(404)
+    } else {
+    	user_id = results.rows[0].id
+    	pool.query('SELECT * FROM user_log WHERE user_id = $1', [user_id], (error, results) => {
+		    if (error) {
+		      throw error
+		    }
+		    var totalCo2kg = 0;
+		    if (results.rows.length == 0) {
+		    	
+		    } else {
+		    	var totalCo2kg = 0;
+		    	for (var x = 0; x < results.rows.length; x++) {
+		    		var co2kg = results.rows[x].co2kg;
+		    		totalCo2kg += parseFloat(co2kg);
+		    	}
+		    }
+		    res.send(totalCo2kg.toFixed(3))
+		})
+    }
+  })
+}).post(function(req,res,done) {
+	var id = req.params.id;
+	var date = new Date();
+	 var co2kg = req.body.co2kg || 0;
+	 var mileage = req.body.mileage || 0;
+	 var transport_mode = req.body.transport_mode || "";
+	 console.log(id);
+	pool.query('INSERT INTO user_log (user_id, date, co2kg, mileage, transport_mode) VALUES ($1, $2, $3, $4, $5)', [id, date, co2kg, mileage, transport_mode], function(error, results) {
+	    if (error) {
+	      console.log(error);
+	      throw error;
+	    }
+	    //console.log(results);
+	    //console.log(results.rows);
+    	res.send(results.rows)
+    })
+	// pool.query('SELECT * FROM users WHERE id = $1', [id], (error, results) => {
+ //    if (error) {
+ //      throw error
+ //    }
+ //    if (results.rows.length == 0) {
+ //    	res.status(404)
+ //    } else {
+ //    	console.log
+ //    	var user_id = results.rows[0].id;
+ //    	var date = new Date();
+ //    	var co2kg = req.query.co2kg || 0;
+ //    	var mileage = req.query.mileage || 0;
+ //    	var transport_mode = req.body.transport_mode || "";
+ //    	console.log(user_id);
+ //    	console.log(date);
+ //    	console.log(co2kg);
+ //    	console.log(mileage);
+ //    	console.log(transport_mode);
+ //    	pool.query('INSERT INTO user_log (user_id, date, co2kg, mileage, transport_mode) VALUES ($1, $2, $3, $4, $5)', [user_id, date, co2kg, mileage, transport_mode], function(error, results) {
+	//     if (error) {
+	//       console.log(error);
+	//       throw error;
+	//     }
+	//     console.log(results.rows);
+ //    	res.send(results.rows)
+ //    })
+ //    }
+ //  })
+})
+
 var CurrentStreet = "604 Brazos St";
 var CurrentCity = "Austin";
 var CurrentState = "TX";
