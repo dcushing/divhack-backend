@@ -18,6 +18,7 @@ const pool = new pg.Pool({
 	host: process.env.DATABASE_HOST,
   database: process.env.DATABASE_URL,
   port: 5432,
+  ssl: true
 })
 
 app.use(helmet())
