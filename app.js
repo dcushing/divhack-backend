@@ -3,14 +3,10 @@ const helmet = require('helmet')
 const bodyParser  = require('body-parser');
 const cors = require('cors');
 require('dotenv').config()
+const request = require("request");
 //models
 const users = require('./models/users');
 const user_logs = require('./models/user_logs');
-
-// for passwords
-const bcrypt = require('bcrypt');
-const saltRounds = 12;
-
 
 const app = express()
 const port = process.env.PORT;
@@ -26,6 +22,11 @@ const pool = new pg.Pool({
 
 app.use(helmet())
 app.options('*', cors())
+
+//var postCode1 = "78704";
+//var postCode2 = "08301";
+//var unit = 'mi';
+
 app.use(bodyParser.json())
 app.use(
   bodyParser.urlencoded({
@@ -93,26 +94,7 @@ app.post('/login', function(req,res,done) {
 })
 
 // user stuff
-app.route('/user').post(function(req,res,done) {
-	// TODO
-	// create the user: need the email, username, and password; need to hash password
-	// var name = req.body.name;
-	// var email = req.body.email;
-	// var passwordHash;
-	// // bcrypt.hash(req.body.password, saltRounds,function(err,hash) {
-	// // 	if (err) return done(err);
-	// // 	passwordHash = hash;
-	// // });
-
-	// // save the user
-	// pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [name, email, passwordHash], (error, results) => {
- //    if (error) {
- //      throw error
- //    }
- //    response.status(201).send(`User added with ID: ${result.insertId}`)
- //  })
-
-}).get(function(req,res,done) {
+app.route('/user').get(function(req,res,done) {
 	var id = req.query.id;
 	pool.query('SELECT * FROM users WHERE id = $1', [id], (error, results) => {
     if (error) {
@@ -122,6 +104,35 @@ app.route('/user').post(function(req,res,done) {
   })
 });
 
+var CurrentStreet = "604 Brazos St";
+var CurrentCity = "Austin";
+var CurrentState = "TX";
+CurrentStreet.replace(/ /g,"%20");
+var Address1 = CurrentStreet + "%20" + CurrentCity + "%20" + CurrentState;
+var Street = "1 Microsoft Way" 
+Street.replace(/ /g,"%20");
+var city = "Redmond";
+var state = "WA";
+var Address2 = Street + "%20" + city + "%20" + state;
+
+app.get('/input', (req,res,done) => {
+    var url = "http://dev.virtualearth.net/REST/V1/Routes/Driving?waypoint.1=" + Address1 + "%2Cwa&waypoint.2=" + Address2 + "%2Cwa&avoid=minimizeTolls&key=" + process.env.BING_API_KEY;
+    var url2 = "http://dev.virtualearth.net/REST/V1/Routes/Transit?waypoint.1=" + Address1 + "%2Cwa&waypoint.2=" + Address2 + "%2Cwa&avoid=minimizeTolls&key=" + process.env.BING_API_KEY;
+    request(url, (error, response, body) => {
+		const data = JSON.parse(body);
+		if(!error && response.statusCode == 200){
+            var distance = data.resourceSets[0].resources[0].travelDistance;
+            console.log(distance);
+		}
+    });
+    request(url2, (error, response, body) => {
+		const data2 = JSON.parse(body);
+		if(!error && response.statusCode == 200){
+            var distance2 = data.resourceSets[0].resources[0].travelDistance;
+            console.log(distance2);
+		}
+	})
+});
 
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
