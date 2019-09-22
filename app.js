@@ -138,19 +138,20 @@ app.route('/user/:id').get(function(req,res,done) {
 }).post(function(req,res,done) {
 	var id = req.params.id;
 	var date = new Date();
-	 var co2kg = req.body.co2kg || 0;
-	 var mileage = req.body.mileage || 0;
-	 var transport_mode = req.body.transport_mode || "";
-	 console.log(id);
-	pool.query('INSERT INTO user_log (user_id, date, co2kg, mileage, transport_mode) VALUES ($1, $2, $3, $4, $5)', [id, date, co2kg, mileage, transport_mode], function(error, results) {
-	    if (error) {
-	      console.log(error);
-	      throw error;
-	    }
-	    //console.log(results);
-	    //console.log(results.rows);
-    	res.send(results.rows)
-    })
+	var co2kg = req.body.co2kg || 0;
+	var mileage = req.body.mileage || 0;
+	var transport_mode = req.body.transport_mode || "";
+	console.log(id);
+	// pool.query('INSERT INTO user_log (user_id, date, co2kg, mileage, transport_mode) VALUES ($1, $2, $3, $4, $5)', [id, date, co2kg, mileage, transport_mode], function(error, results) {
+	//     if (error) {
+	//       console.log(error);
+	//       throw error;
+	//     }
+	//     //console.log(results);
+	//     //console.log(results.rows);
+ //    	res.send(results.rows)
+ //    })
+ res.sendStatus(204);
 	// pool.query('SELECT * FROM users WHERE id = $1', [id], (error, results) => {
  //    if (error) {
  //      throw error
