@@ -17,6 +17,7 @@ pg.defaults.connectionString = process.env.DATABASE_URL + "?ssl=true";
 const pool = new pg.Pool({
 	host: process.env.DATABASE_HOST,
   database: process.env.DATABASE_URL,
+  connectionString: process.env.DATABASE_URL
   port: 5432,
   ssl: true
 })
