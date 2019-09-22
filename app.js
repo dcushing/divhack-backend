@@ -20,7 +20,7 @@ const pool = new pg.Pool({
   database: process.env.DATABASE_URL,
   connectionString: process.env.DATABASE_URL,
   port: 5432,
-  //ssl: true
+  ssl: true
 })
 
 app.use(helmet())
@@ -63,7 +63,7 @@ app.get('/', function(req,res,done) {
 	res.json({"message": "hello!"}); // this will be changed later
 })
 
-// this will be the login page
+// this will be the about page
 app.get('/about', function(req,res,done) {
 	res.send({"message": "hello!"}); // this will be changed later
 })
@@ -85,7 +85,6 @@ app.post('/login', function(req,res,done) {
 	      throw error;
 	    }
 	    res.sendStatus(200);
-    	//res.send(results.rows)
     })
     } else {
     	res.sendStatus(200).send(results.rows);
@@ -104,25 +103,23 @@ app.route('/user/:id').get(function(req,res,done) {
     if (results.rows.length == 0) {
     	res.sendStatus(404)
     } else {
-  //   	user_id = results.rows[0].id
-  //   	pool.query('SELECT * FROM user_log WHERE user_id = $1', [user_id], (error, results) => {
-		//     if (error) {
-		//       throw error
-		//     }
-		//     var totalCo2kg = 0;
-		//     if (results.rows.length == 0) {
+    	user_id = results.rows[0].id
+    	pool.query('SELECT * FROM user_log WHERE user_id = $1', [user_id], (error, results) => {
+		    if (error) {
+		      throw error
+		    }
+		    var totalCo2kg = 0;
+		    if (results.rows.length == 0) {
 		    	
-		//     } else {
-		//     	var totalCo2kg = 0;
-		//     	for (var x = 0; x < results.rows.length; x++) {
-		//     		var co2kg = results.rows[x].co2kg;
-		//     		totalCo2kg += parseFloat(co2kg);
-		//     	}
-		//     }
-		//     //res.send(totalCo2kg.toFixed(3))
-		    
-		// })
-		res.send("305.43")
+		    } else {
+		    	var totalCo2kg = 0;
+		    	for (var x = 0; x < results.rows.length; x++) {
+		    		var co2kg = results.rows[x].co2kg;
+		    		totalCo2kg += parseFloat(co2kg);
+		    	}
+		    }
+		    res.send(totalCo2kg.toFixed(3))  
+		})
     }
   })
 }).post(function(req,res,done) {
@@ -131,6 +128,7 @@ app.route('/user/:id').get(function(req,res,done) {
 	var co2kg = req.body.co2kg || 0;
 	var mileage = req.body.mileage || 0;
 	var transport_mode = req.body.transport_mode || "";
+	// TODO: create user log rows and associate them to a user row in the users table
  res.sendStatus(204);
 })
 
