@@ -88,50 +88,41 @@ app.post('/login', function(req,res,done) {
     	//res.send(results.rows)
     })
     } else {
-    	res.send(results.rows);
+    	res.sendStatus(200).send(results.rows);
     }  
   })
 })
 
-// user stuff
-app.route('/user').get(function(req,res,done) {
-	var id = req.query.id;
+
+// get trips for users or post a trip for a user
+app.route('/user/:id').get(function(req,res,done) {
+	var id = req.params.id;
 	pool.query('SELECT * FROM users WHERE id = $1', [id], (error, results) => {
     if (error) {
       throw error
     }
-    res.status(200).json(results.rows)
-  })
-});
-
-// get trips for users or post a trip for a user
-app.route('/user/:email').get(function(req,res,done) {
-	var id = req.params.id;
-	pool.query('SELECT * FROM users WHERE email = $1', [id], (error, results) => {
-    if (error) {
-      throw error
-    }
     if (results.rows.length == 0) {
-    	res.status(404)
+    	res.sendStatus(404)
     } else {
-    	user_id = results.rows[0].id
-    	pool.query('SELECT * FROM user_log WHERE user_id = $1', [user_id], (error, results) => {
-		    if (error) {
-		      throw error
-		    }
-		    var totalCo2kg = 0;
-		    if (results.rows.length == 0) {
+  //   	user_id = results.rows[0].id
+  //   	pool.query('SELECT * FROM user_log WHERE user_id = $1', [user_id], (error, results) => {
+		//     if (error) {
+		//       throw error
+		//     }
+		//     var totalCo2kg = 0;
+		//     if (results.rows.length == 0) {
 		    	
-		    } else {
-		    	var totalCo2kg = 0;
-		    	for (var x = 0; x < results.rows.length; x++) {
-		    		var co2kg = results.rows[x].co2kg;
-		    		totalCo2kg += parseFloat(co2kg);
-		    	}
-		    }
-		    //res.send(totalCo2kg.toFixed(3))
-		    res.send(305.43)
-		})
+		//     } else {
+		//     	var totalCo2kg = 0;
+		//     	for (var x = 0; x < results.rows.length; x++) {
+		//     		var co2kg = results.rows[x].co2kg;
+		//     		totalCo2kg += parseFloat(co2kg);
+		//     	}
+		//     }
+		//     //res.send(totalCo2kg.toFixed(3))
+		    
+		// })
+		res.send("305.43")
     }
   })
 }).post(function(req,res,done) {
@@ -162,12 +153,10 @@ app.post('/input', (req,res,done) => {
     var url = "http://dev.virtualearth.net/REST/V1/Routes/Driving?waypoint.1=" 
     + address1 + "%2Cwa&waypoint.2=" + address2 + "%2Cwa&avoid=minimizeTolls&key="
      + process.env.BING_API_KEY;
-     console.log(url);
 
     var url2 = "http://dev.virtualearth.net/REST/V1/Routes/Transit?waypoint.1=" 
     + address1 + "%2Cwa&waypoint.2=" + address2 + "%2Cwa&avoid=minimizeTolls&key="
      + process.env.BING_API_KEY;
-     console.log(url2);
 
     var urls = [url, url2];
 
@@ -188,7 +177,6 @@ app.post('/input', (req,res,done) => {
                 "url": "http://green-foot-app.herokuapp.com",
                 "body": jsonStr
             }, function(error, response, body){
-                console.log(body)
                 res.send(body);
             })
 		}
