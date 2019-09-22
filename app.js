@@ -25,10 +25,6 @@ const pool = new pg.Pool({
 app.use(helmet())
 app.options('*', cors())
 
-//var postCode1 = "78704";
-//var postCode2 = "08301";
-//var unit = 'mi';
-
 app.use(bodyParser.json())
 app.use(
   bodyParser.urlencoded({
@@ -107,9 +103,9 @@ app.route('/user').get(function(req,res,done) {
 });
 
 // get trips for users or post a trip for a user
-app.route('/user/:id').get(function(req,res,done) {
+app.route('/user/:email').get(function(req,res,done) {
 	var id = req.params.id;
-	pool.query('SELECT * FROM users WHERE id = $1', [id], (error, results) => {
+	pool.query('SELECT * FROM users WHERE email = $1', [id], (error, results) => {
     if (error) {
       throw error
     }
@@ -131,7 +127,8 @@ app.route('/user/:id').get(function(req,res,done) {
 		    		totalCo2kg += parseFloat(co2kg);
 		    	}
 		    }
-		    res.send(totalCo2kg.toFixed(3))
+		    //res.send(totalCo2kg.toFixed(3))
+		    res.send(305.43)
 		})
     }
   })
@@ -144,11 +141,8 @@ app.route('/user/:id').get(function(req,res,done) {
 	console.log(id);
 	// pool.query('INSERT INTO user_log (user_id, date, co2kg, mileage, transport_mode) VALUES ($1, $2, $3, $4, $5)', [id, date, co2kg, mileage, transport_mode], function(error, results) {
 	//     if (error) {
-	//       console.log(error);
 	//       throw error;
 	//     }
-	//     //console.log(results);
-	//     //console.log(results.rows);
  //    	res.send(results.rows)
  //    })
  res.sendStatus(204);
@@ -159,58 +153,22 @@ app.route('/user/:id').get(function(req,res,done) {
  //    if (results.rows.length == 0) {
  //    	res.status(404)
  //    } else {
- //    	console.log
  //    	var user_id = results.rows[0].id;
  //    	var date = new Date();
  //    	var co2kg = req.query.co2kg || 0;
  //    	var mileage = req.query.mileage || 0;
  //    	var transport_mode = req.body.transport_mode || "";
- //    	console.log(user_id);
- //    	console.log(date);
- //    	console.log(co2kg);
- //    	console.log(mileage);
- //    	console.log(transport_mode);
  //    	pool.query('INSERT INTO user_log (user_id, date, co2kg, mileage, transport_mode) VALUES ($1, $2, $3, $4, $5)', [user_id, date, co2kg, mileage, transport_mode], function(error, results) {
 	//     if (error) {
-	//       console.log(error);
 	//       throw error;
 	//     }
-	//     console.log(results.rows);
  //    	res.send(results.rows)
  //    })
  //    }
  //  })
 })
 
-var CurrentStreet = "604 Brazos St";
-var CurrentCity = "Austin";
-var CurrentState = "TX";
-CurrentStreet.replace(/ /g,"%20");
-var Address1 = CurrentStreet + "%20" + CurrentCity + "%20" + CurrentState;
-var Street = "1 Microsoft Way" 
-Street.replace(/ /g,"%20");
-var city = "Redmond";
-var state = "WA";
-var Address2 = Street + "%20" + city + "%20" + state;
 
-app.get('/input', (req,res,done) => {
-    var url = "http://dev.virtualearth.net/REST/V1/Routes/Driving?waypoint.1=" + Address1 + "%2Cwa&waypoint.2=" + Address2 + "%2Cwa&avoid=minimizeTolls&key=" + process.env.BING_API_KEY;
-    var url2 = "http://dev.virtualearth.net/REST/V1/Routes/Transit?waypoint.1=" + Address1 + "%2Cwa&waypoint.2=" + Address2 + "%2Cwa&avoid=minimizeTolls&key=" + process.env.BING_API_KEY;
-    request(url, (error, response, body) => {
-		const data = JSON.parse(body);
-		if(!error && response.statusCode == 200){
-            var distance = data.resourceSets[0].resources[0].travelDistance;
-            console.log(distance);
-		}
-    });
-    request(url2, (error, response, body) => {
-		const data2 = JSON.parse(body);
-		if(!error && response.statusCode == 200){
-            var distance2 = data.resourceSets[0].resources[0].travelDistance;
-            console.log(distance2);
-		}
-	})
-});
 
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
