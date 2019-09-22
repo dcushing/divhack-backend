@@ -4,6 +4,7 @@ const bodyParser  = require('body-parser');
 const cors = require('cors');
 require('dotenv').config()
 const request = require("request");
+
 //models
 const users = require('./models/users');
 const user_logs = require('./models/user_logs');
@@ -104,34 +105,65 @@ app.route('/user').get(function(req,res,done) {
   })
 });
 
+app.post('/input', (req,res,done) => {
+
+    var currentStreet = req.body.currentStreet;
+    console.log(currentStreet);
+    currentStreet.replace(/ /g,"%20");
+    var currentCity = req.body.currentCity;
+    var currentState = req.body.currentState;
+    var address1 = currentStreet + "%20" + currentCity + "%20" + currentState;
+    var street = req.body.street; 
+    street.replace(/ /g,"%20");
+    var city = req.body.city;
+    var state = req.body.state;
+    var address2 = street + "%20" + city + "%20" + state;
+
+/*
 var CurrentStreet = "604 Brazos St";
 var CurrentCity = "Austin";
 var CurrentState = "TX";
 CurrentStreet.replace(/ /g,"%20");
-var Address1 = CurrentStreet + "%20" + CurrentCity + "%20" + CurrentState;
+var address1 = CurrentStreet + "%20" + CurrentCity + "%20" + CurrentState;
 var Street = "1 Microsoft Way" 
 Street.replace(/ /g,"%20");
 var city = "Redmond";
 var state = "WA";
-var Address2 = Street + "%20" + city + "%20" + state;
+var address2 = Street + "%20" + city + "%20" + state;
+*/
 
-app.get('/input', (req,res,done) => {
-    var url = "http://dev.virtualearth.net/REST/V1/Routes/Driving?waypoint.1=" + Address1 + "%2Cwa&waypoint.2=" + Address2 + "%2Cwa&avoid=minimizeTolls&key=" + process.env.BING_API_KEY;
-    var url2 = "http://dev.virtualearth.net/REST/V1/Routes/Transit?waypoint.1=" + Address1 + "%2Cwa&waypoint.2=" + Address2 + "%2Cwa&avoid=minimizeTolls&key=" + process.env.BING_API_KEY;
+
+    var url = "http://dev.virtualearth.net/REST/V1/Routes/Driving?waypoint.1=" 
+    + address1 + "%2Cwa&waypoint.2=" + address2 + "%2Cwa&avoid=minimizeTolls&key="
+     + process.env.BING_API_KEY;
+
+    var url2 = "http://dev.virtualearth.net/REST/V1/Routes/Transit?waypoint.1=" 
+    + address1 + "%2Cwa&waypoint.2=" + address2 + "%2Cwa&avoid=minimizeTolls&key="
+     + process.env.BING_API_KEY;
+
+    var urls = [url, url2];
+
     request(url, (error, response, body) => {
-		const data = JSON.parse(body);
+		var data = JSON.parse(body);
 		if(!error && response.statusCode == 200){
-            var distance = data.resourceSets[0].resources[0].travelDistance;
-            console.log(distance);
+            var distancekm = data.resourceSets[0].resources[0].travelDistance;
+            var preJson = {
+                "car_distance": distancekm
+            }
+            
+            var jsonStr = JSON.stringify(preJson)
+            request.post({
+                "headers":{ 
+                    "Content-Type": "application/json"
+                },
+                "url": "http://green-foot-app.herokuapp.com",
+                "body": jsonStr
+            }, function(error, response, body){
+                console.log(body)
+                res.send(body);
+            })
 		}
     });
-    request(url2, (error, response, body) => {
-		const data2 = JSON.parse(body);
-		if(!error && response.statusCode == 200){
-            var distance2 = data.resourceSets[0].resources[0].travelDistance;
-            console.log(distance2);
-		}
-	})
 });
 
 
