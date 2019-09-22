@@ -4,6 +4,7 @@ const bodyParser  = require('body-parser');
 const cors = require('cors');
 require('dotenv').config()
 const request = require("request");
+
 //models
 const users = require('./models/users');
 const user_logs = require('./models/user_logs');
@@ -138,37 +139,57 @@ app.route('/user/:email').get(function(req,res,done) {
 	var co2kg = req.body.co2kg || 0;
 	var mileage = req.body.mileage || 0;
 	var transport_mode = req.body.transport_mode || "";
-	console.log(id);
-	// pool.query('INSERT INTO user_log (user_id, date, co2kg, mileage, transport_mode) VALUES ($1, $2, $3, $4, $5)', [id, date, co2kg, mileage, transport_mode], function(error, results) {
-	//     if (error) {
-	//       throw error;
-	//     }
- //    	res.send(results.rows)
- //    })
  res.sendStatus(204);
-	// pool.query('SELECT * FROM users WHERE id = $1', [id], (error, results) => {
- //    if (error) {
- //      throw error
- //    }
- //    if (results.rows.length == 0) {
- //    	res.status(404)
- //    } else {
- //    	var user_id = results.rows[0].id;
- //    	var date = new Date();
- //    	var co2kg = req.query.co2kg || 0;
- //    	var mileage = req.query.mileage || 0;
- //    	var transport_mode = req.body.transport_mode || "";
- //    	pool.query('INSERT INTO user_log (user_id, date, co2kg, mileage, transport_mode) VALUES ($1, $2, $3, $4, $5)', [user_id, date, co2kg, mileage, transport_mode], function(error, results) {
-	//     if (error) {
-	//       throw error;
-	//     }
- //    	res.send(results.rows)
- //    })
- //    }
- //  })
 })
 
 
+app.post('/input', (req,res,done) => {
+
+    var currentStreet = req.body.currentStreet;
+    console.log(currentStreet);
+    currentStreet.replace(/ /g,"%20");
+    var currentCity = req.body.currentCity;
+    var currentState = req.body.currentState;
+    var address1 = currentStreet + "%20" + currentCity + "%20" + currentState;
+    var street = req.body.street; 
+    street.replace(/ /g,"%20");
+    var city = req.body.city;
+    var state = req.body.state;
+    var address2 = street + "%20" + city + "%20" + state;
+
+
+    var url = "http://dev.virtualearth.net/REST/V1/Routes/Driving?waypoint.1=" 
+    + address1 + "%2Cwa&waypoint.2=" + address2 + "%2Cwa&avoid=minimizeTolls&key="
+     + process.env.BING_API_KEY;
+
+    var url2 = "http://dev.virtualearth.net/REST/V1/Routes/Transit?waypoint.1=" 
+    + address1 + "%2Cwa&waypoint.2=" + address2 + "%2Cwa&avoid=minimizeTolls&key="
+     + process.env.BING_API_KEY;
+
+    var urls = [url, url2];
+
+    request(url, (error, response, body) => {
+		var data = JSON.parse(body);
+		if(!error && response.statusCode == 200){
+            var distancekm = data.resourceSets[0].resources[0].travelDistance;
+            var preJson = {
+                "car_distance": distancekm
+            }
+            
+            var jsonStr = JSON.stringify(preJson)
+            request.post({
+                "headers":{ 
+                    "Content-Type": "application/json"
+                },
+                "url": "http://green-foot-app.herokuapp.com",
+                "body": jsonStr
+            }, function(error, response, body){
+                console.log(body)
+                res.send(body);
+            })
+		}
+    });
+});
 
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
