@@ -150,14 +150,12 @@ app.post('/input', (req,res,done) => {
     console.log(currentStreet);
     currentStreet.replace(/ /g,"%20");
     console.log(currentStreet);
-    currentStreet = "604%20Brazos%20St"
     var currentCity = req.body.currentCity;
     var currentState = req.body.currentState;
     var address1 = currentStreet + "%20" + currentCity + "%20" + currentState;
     console.log(address1);
     var street = req.body.street; 
     street.replace(/ /g,"%20");
-    street = "1%20Microsoft%20Way";
     var city = req.body.city;
     var state = req.body.state;
     var address2 = street + "%20" + city + "%20" + state;
@@ -194,8 +192,8 @@ var address2 = Street + "%20" + city + "%20" + state;
 		if(!error && response.statusCode == 200){
             var distancekm = data.resourceSets[0].resources[0].travelDistance;
             var preJson = {
-                "car_distance": 2122,
-                "bus_distance": 2122
+                "car_distance": distancekm,
+                "bus_distance": distancekm
             }
             
             var jsonStr = JSON.stringify(preJson)
